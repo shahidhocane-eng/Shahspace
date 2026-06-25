@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "groww": {
+      "command": "python",
+      "args": ["-m", "groww_mcp.server"],
+      "env": {
+        "GROWW_API_KEY": "${GROWW_API_KEY}"
+      }
+    }
+  }
+}
