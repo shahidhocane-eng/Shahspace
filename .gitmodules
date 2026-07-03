@@ -1,0 +1,3 @@
+[submodule "velora"]
+	path = velora
+	url = https://github.com/Kingler16/velora.git
