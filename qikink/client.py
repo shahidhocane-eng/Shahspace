@@ -14,11 +14,11 @@ Never hardcode credentials in source. Put them in a local `.env` file
 (see `.env.example`) and load it with a tool like python-dotenv, or
 export them in your shell before running scripts that use this client.
 
-Only the token endpoint's request/response shape is confirmed here.
-Qikink's order/product endpoint paths and payload fields live in a
-private Postman collection (requires a Qikink account to view) that
-wasn't reachable when this client was written — verify exact
-paths/fields there before relying on `request()` for order creation.
+The token endpoint and POST /api/order/create are confirmed against a
+documented example payload. Other endpoints (order status, product
+catalog, etc.) live in a private Postman collection (requires a Qikink
+account to view) that wasn't reachable when this client was written —
+verify exact paths/fields there before relying on `request()` for them.
 """
 
 import os
@@ -77,12 +77,65 @@ class QikinkClient:
             self.authenticate()
         return self._access_token
 
+    def create_order(
+        self,
+        order_number,
+        total_order_value,
+        line_items,
+        shipping_address,
+        gateway="COD",
+        qikink_shipping="1",
+    ):
+        """
+        Create an order via POST /api/order/create.
+
+        Args:
+            order_number: Your own unique order reference (str).
+            total_order_value: Order total, e.g. "499" (str or number).
+            line_items: list of dicts, each shaped like:
+                {
+                    "search_from_my_products": 0,
+                    "quantity": "1",
+                    "print_type_id": 1,
+                    "price": "1",
+                    "sku": "MVnHs-Wh-S",
+                    "designs": [
+                        {
+                            "design_code": "iPhoneXR",
+                            "width_inches": "",
+                            "height_inches": "",
+                            "placement_sku": "fr",
+                            "design_link": "https://...",
+                            "mockup_link": "https://...",
+                        }
+                    ],
+                }
+            shipping_address: dict shaped like:
+                {
+                    "first_name": "...", "last_name": "...", "address1": "...",
+                    "phone": "...", "email": "...", "city": "...", "zip": "...",
+                    "province": "...", "country_code": "IN",
+                }
+            gateway: "COD" or "PREPAID".
+            qikink_shipping: "1" to have Qikink handle shipping, else "0".
+        """
+        payload = {
+            "order_number": order_number,
+            "qikink_shipping": qikink_shipping,
+            "gateway": gateway,
+            "total_order_value": str(total_order_value),
+            "line_items": line_items,
+            "shipping_address": shipping_address,
+        }
+        return self.request("POST", "/api/order/create", json=payload)
+
     def request(self, method, path, **kwargs):
         """
         Authenticated request against any Qikink endpoint.
 
         Verify the exact path and payload shape against your Qikink Postman
-        collection first — only /api/token is confirmed by this client.
+        collection first for anything beyond /api/token and
+        /api/order/create, which are confirmed by this client.
         """
         headers = kwargs.pop("headers", {})
         headers.update({"ClientId": self.client_id, "Accesstoken": self.access_token})

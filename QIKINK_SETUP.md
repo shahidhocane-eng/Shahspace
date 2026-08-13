@@ -3,13 +3,14 @@
 `qikink/` is a minimal connector for the [Qikink](https://qikink.com) Print
 on Demand / Dropshipping API, in the same style as `wazirx/` and `shopify/`.
 
-**Scope note:** only the token endpoint (`POST /api/token`) is verified.
-Qikink's order/product endpoints live in a private Postman collection that
-requires a Qikink account to view, and wasn't reachable from this
-environment when the connector was built. `QikinkClient.request()` is a
-generic authenticated-request helper — confirm exact paths and payload
-shapes in your own Postman collection (dashboard.qikink.com → Integration →
-Custom API) before relying on it for orders.
+**Scope note:** `POST /api/token` and `POST /api/order/create` are
+confirmed against documented example payloads (see `create_order()` below).
+Other endpoints (order status, product catalog, etc.) live in a private
+Postman collection that requires a Qikink account to view, and weren't
+reachable from this environment when the connector was built.
+`QikinkClient.request()` is a generic authenticated-request helper for
+those — confirm exact paths and payload shapes in your own Postman
+collection (dashboard.qikink.com → Integration → Custom API) first.
 
 ## Prerequisites
 
@@ -45,8 +46,44 @@ Exchanges your credentials for an access token against
 from qikink import QikinkClient
 
 client = QikinkClient()
-client.authenticate()  # optional — request() calls this lazily on first use
+client.authenticate()  # optional — auth also happens lazily on first request
 
-# generic authenticated call once you've confirmed the real path/payload
-data = client.request("POST", "/api/order/create", json={...})
+order = client.create_order(
+    order_number="api1",
+    total_order_value="1",
+    line_items=[
+        {
+            "search_from_my_products": 0,
+            "quantity": "1",
+            "print_type_id": 1,
+            "price": "1",
+            "sku": "MVnHs-Wh-S",
+            "designs": [
+                {
+                    "design_code": "iPhoneXR",
+                    "width_inches": "",
+                    "height_inches": "",
+                    "placement_sku": "fr",
+                    "design_link": "https://sgp1.digitaloceanspaces.com/cdn.qikink.com/erp2/assets/designs/83/1696668376.jpg",
+                    "mockup_link": "https://sgp1.digitaloceanspaces.com/cdn.qikink.com/erp2/assets/designs/83/1696668376.jpg",
+                }
+            ],
+        }
+    ],
+    shipping_address={
+        "first_name": "sdf",
+        "last_name": "ds",
+        "address1": "sdsfsdf3",
+        "phone": "fasda",
+        "email": "adf",
+        "city": "sda",
+        "zip": "sdfs",
+        "province": "sdfa",
+        "country_code": "IN",
+    },
+)
+
+# generic authenticated call for any other endpoint, once you've confirmed
+# the real path/payload against your Postman collection
+data = client.request("GET", "/api/order_status", params={"order_number": "api1"})
 ```
