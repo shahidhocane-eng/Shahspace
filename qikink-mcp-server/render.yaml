@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: qikink-mcp-server
+    runtime: node
+    rootDir: qikink-mcp-server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: TRANSPORT
+        value: http
+      - key: QIKINK_ENV
+        value: sandbox
+      - key: QIKINK_CLIENT_ID
+        sync: false
+      - key: QIKINK_CLIENT_SECRET
+        sync: false
