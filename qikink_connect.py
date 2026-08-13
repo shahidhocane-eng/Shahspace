@@ -31,9 +31,11 @@ def main():
     print(f"Connected to Qikink ({client.env}): {client.base_url}")
     print(f"  Access token: {token[:8]}... (truncated)")
     print(
-        "\nToken auth succeeded. Order/product endpoint paths and payloads "
-        "aren't verified by this client — check your Qikink Postman "
-        "collection, then call client.request(method, path, json=...) to use them."
+        "\nToken auth succeeded. Use client.create_order(...) to place orders "
+        "(POST /api/order/create — confirmed schema). Other endpoints (order "
+        "status, product catalog, etc.) aren't verified by this client — check "
+        "your Qikink Postman collection, then call client.request(method, path, "
+        "json=...) to use them."
     )
 
 
