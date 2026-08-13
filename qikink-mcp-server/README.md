@@ -52,7 +52,37 @@ Render, Fly.io, Railway, a VPS behind a reverse proxy, etc. In broad strokes:
 3. Confirm `https://<your-host>/mcp` responds to an MCP `initialize` request
    (see the smoke test below).
 4. In claude.ai, go to **Settings → Connectors → Add custom connector** and
-   enter that URL.
+   enter that URL (with `/mcp` on the end) as the Remote MCP server URL.
+
+### Deploying on Render
+
+This repo is a monorepo (this server is one subdirectory among several
+unrelated projects), so use Render's manual **Web Service** flow rather
+than Blueprint auto-detect, so you can point it at the right subfolder:
+
+1. [render.com](https://render.com) → **New +** → **Web Service** → connect
+   the `shahidhocane-eng/Shahspace` GitHub repo.
+2. **Root Directory**: `qikink-mcp-server`
+3. **Runtime**: Node
+4. **Build Command**: `npm install && npm run build`
+5. **Start Command**: `npm start`
+6. **Environment variables**:
+   - `TRANSPORT` = `http`
+   - `QIKINK_ENV` = `sandbox` (or `live`)
+   - `QIKINK_CLIENT_ID` = *(your Qikink ClientId)*
+   - `QIKINK_CLIENT_SECRET` = *(your Qikink client_secret)*
+   - Render sets `PORT` itself — leave it unset here, the server reads it automatically.
+7. Deploy. Render gives you a URL like `https://qikink-mcp-server.onrender.com`
+   — the connector URL is that plus `/mcp`.
+
+`render.yaml` in this directory documents the same config as
+infrastructure-as-code, for reference or if you use Render's CLI/Blueprints
+instead of the dashboard.
+
+**Free tier note:** Render's free web services spin down after ~15 minutes
+idle and take a few seconds to wake on the next request — the first tool
+call after a quiet period may time out or feel slow. Fine for testing; for
+reliable use you'd want a paid instance type (or a different platform).
 
 **Smoke test after deploying:**
 
