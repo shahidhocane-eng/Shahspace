@@ -3,6 +3,13 @@
     "openart": {
       "type": "http",
       "url": "https://mcp.openart.ai/mcp"
+    },
+    "vidiq": {
+      "type": "http",
+      "url": "https://mcp.vidiq.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${VIDIQ_API_KEY}"
+      }
     }
   }
 }
